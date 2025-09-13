@@ -130,9 +130,9 @@ async function onSubmit (event: FormSubmitEvent<any>) {
   // Ovdje ide logika za registraciju korisnika
   // Na primjer, provjera jesu li lozinke iste
   if (event.data.password !== event.data.passwordConfirm) {
-    console.error('Lozinke se ne podudaraju!');
+    console.error('passwords dont match!');
     return;
   }
-  console.log('Podaci za registraciju:', event.data)
+  console.log('data for registration:', event.data)
 }
 </script>
