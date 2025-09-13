@@ -15,13 +15,13 @@
         </div>
 
         <div class="grid grid-cols-3 gap-3">
-          <UButton label="Apple" size="lg" variant="outline" class="w-full justify-center" />
-          <UButton label="Google" size="lg" variant="outline" class="w-full justify-center" />
-          <UButton label="Twitter" size="lg" variant="outline" class="w-full justify-center" />
+          <UButton icon="i-simple-icons-apple" aria-label="Apple" size="lg" variant="outline" class="w-full justify-center" />
+          <UButton icon="i-simple-icons-google" aria-label="Google" size="lg" variant="outline" class="w-full justify-center" />
+          <UButton icon="i-simple-icons-twitter" aria-label="Twitter" size="lg" variant="outline" class="w-full justify-center" />
         </div>
 
-        <UForm :state="state" @submit="onSubmit">
-  
+        <UForm :state="state" @submit="onSubmit" class="space-y-4">
+ 
             <UFormField  name="email">
               <template #label><span class="sr-only">Email</span></template>
               <UInput v-model="state.email" placeholder="Enter your email..." size="lg" class="w-full"/>
@@ -43,7 +43,7 @@
             label="Sign in" 
             size="lg" 
             block
-            class="mt-6 bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold"
+            class="!mt-6 bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold"
           />
         </UForm>
 
