@@ -3,3 +3,6 @@
     <NuxtPage />
   </UApp>
 </template>
+
+<style>
+</style>

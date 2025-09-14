@@ -1,6 +1,7 @@
 package hr.pocetnik.bookingapp.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.Set;
 
@@ -13,11 +14,13 @@ import static jakarta.persistence.DiscriminatorType.STRING;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)  // Definira strategiju za nasljeđivanje između entiteta, omogućava da spremamo Admin i Seller profile u istu tablicu te se automatski nadovezuje na slijedeću liniju. Doc: https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/inheritance
 @DiscriminatorColumn(name = "ROLETYPE", discriminatorType = STRING, length = 10)  // Koristi se za stvaranje dodatne kolone da bi se odredila vrsta svakog ulaznog podatka te omogućuje definiciju uloge korisničkog profila. Doc: https://jakarta.ee/specifications/persistence/3.1/apidocs/jakarta.persistence/jakarta/persistence/discriminatorcolumn
 @DiscriminatorValue("USER")  // Postavlja osnovnu vrijednost kolone ako nije specificirano tijekom izrade. Doc: https://jakarta.ee/specifications/persistence/3.0/apidocs/jakarta.persistence/jakarta/persistence/discriminatorvalue
+@Getter
 public class UserEntity {
 
     @Id  // Definira da je slijedeća varijabla PK za entitet. Doc: https://jakarta.ee/specifications/persistence/3.0/apidocs/jakarta.persistence/jakarta/persistence/id
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // Pravilnik za generaciju PK, 'IDENTITY' definira da je baza zadužna za auto-inkrementalnu generaciju. Doc: https://jakarta.ee/specifications/persistence/3.1/apidocs/jakarta.persistence/jakarta/persistence/generatedvalue
-    private Long user_id;
+    @Column(name = "user_id")
+    private Long id;
 
     private String name;
     private String surname;
@@ -28,4 +31,6 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)  // Definira odnos između entiteta. Doc: https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/onetomany
     private Set<BillingDataEntity> billingData;
+
+
 }

@@ -1,2 +1,9 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+button,
+input[type="button"],
+input[type="submit"],
+[role="button"] {
+  cursor: pointer;
+}

@@ -8,7 +8,8 @@ public class BillingDataEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long bd_id;
+    @Column(name = "bd_id")
+    private Long id;
 
     private String phoneNumber;
     private String address;
