@@ -23,14 +23,13 @@ public class JwtServiceImpl implements JwtService {
 
     @PostConstruct
     public void init() {
-        // This method runs once after the secret is injected
         this.key = Keys.hmacShaKeyFor(this.secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(UserEntity user) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-        long expMillis = nowMillis + 3_600_000; // 1 hour
+        long expMillis = nowMillis + 3_600_000;
         Date exp = new Date(expMillis);
 
         return Jwts.builder()

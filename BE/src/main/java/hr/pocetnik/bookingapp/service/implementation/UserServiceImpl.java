@@ -37,38 +37,38 @@ public class UserServiceImpl implements UserService {
     public UserEntity registerUser(String name, String surname, String email, String password) {
 
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        Long userId;
+        String modifiedEmail = email.toLowerCase(Locale.ROOT);
+
         try {
+            if (!EMAIL_PATTERN.matcher(modifiedEmail).matches()) {
+                throw new RuntimeException("Invalid email format");
+            }
+
+            if (userRepository.existsByEmail(modifiedEmail)) {
+                throw new RuntimeException("User already exists");
+            }
+
             final KeyHolder keyHolder = new GeneratedKeyHolder();
 
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, name);
                 ps.setString(2, surname);
-                ps.setString(3, email);
+                ps.setString(3, modifiedEmail);
                 ps.setString(4, hashedPassword);
                 return ps;
             }, keyHolder);
 
-            userId = (Long) keyHolder.getKeys().get("USER_ID");
+            Long userId = keyHolder.getKey().longValue();
 
+            return userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException(
+                            "Could not find user after creation with id: " + userId));
+
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Error when creating user: " + e.getMessage(), e);
         }
-        catch (Exception e){
-            throw new RuntimeException("Error when creating user: ", e);
-        }
-
-        String modifiedEmail = email.toLowerCase(Locale.ROOT);
-
-        if (!EMAIL_PATTERN.matcher(modifiedEmail).matches()) {
-            throw new RuntimeException("Invalid email format");
-        }
-
-
-        if (userRepository.existsByEmail(modifiedEmail)) {
-            throw new RuntimeException("User already exists");
-        }
-
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Could not find user after creation with id: " + userId));
     }
+
 }
 
