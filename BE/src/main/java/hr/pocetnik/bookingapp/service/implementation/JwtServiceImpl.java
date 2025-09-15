@@ -34,8 +34,9 @@ public class JwtServiceImpl implements JwtService {
 
         return Jwts.builder()
                 .subject(user.getEmail())
+                .claim("Id", user.getId())
                 .issuedAt(Date.from(now.toInstant()))
-                .expiration(Date.from(exp.toInstant()))
+                .expiration(exp)
                 .signWith(key)
                 .compact();
     }

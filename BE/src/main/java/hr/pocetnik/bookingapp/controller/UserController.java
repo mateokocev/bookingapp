@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -31,13 +31,13 @@ public class UserController {
     public ResponseEntity<Map<String, String>> registerUser(@RequestBody Map<String, String> userMap) {
 
         String name = userMap.get("name");
-        String surname = userMap.get("lastname");
+        String surname = userMap.get("surname");
         String email = userMap.get("email");
         String password = userMap.get("password");
 
 
         Objects.requireNonNull(name, "First name must not be null");
-        Objects.requireNonNull(surname, "Last name must not be null");
+        Objects.requireNonNull(surname, "Surname must not be null");
         Objects.requireNonNull(email, "Email must not be null");
         Objects.requireNonNull(password, "Password must not be null");
 

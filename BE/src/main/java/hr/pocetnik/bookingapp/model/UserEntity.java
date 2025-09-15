@@ -2,6 +2,7 @@ package hr.pocetnik.bookingapp.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import static jakarta.persistence.DiscriminatorType.STRING;
 @DiscriminatorColumn(name = "ROLETYPE", discriminatorType = STRING, length = 10)  // Koristi se za stvaranje dodatne kolone da bi se odredila vrsta svakog ulaznog podatka te omogućuje definiciju uloge korisničkog profila. Doc: https://jakarta.ee/specifications/persistence/3.1/apidocs/jakarta.persistence/jakarta/persistence/discriminatorcolumn
 @DiscriminatorValue("USER")  // Postavlja osnovnu vrijednost kolone ako nije specificirano tijekom izrade. Doc: https://jakarta.ee/specifications/persistence/3.0/apidocs/jakarta.persistence/jakarta/persistence/discriminatorvalue
 @Getter
+@Setter
 public class UserEntity {
 
     @Id  // Definira da je slijedeća varijabla PK za entitet. Doc: https://jakarta.ee/specifications/persistence/3.0/apidocs/jakarta.persistence/jakarta/persistence/id

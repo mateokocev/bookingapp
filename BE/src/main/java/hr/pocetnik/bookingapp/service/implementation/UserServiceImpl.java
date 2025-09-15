@@ -4,28 +4,13 @@ import hr.pocetnik.bookingapp.model.UserEntity;
 import hr.pocetnik.bookingapp.repository.UserRepository;
 import hr.pocetnik.bookingapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Service
 public class UserServiceImpl implements UserService {
-
-    private static String SQL_CREATE = "INSERT INTO USER (NAME, SURNAME, EMAIL, PASSWORD) " + "VALUES(NEXTVAL('USERS_SEQ'), ?, ?, ?, ?)";
-
-    private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public UserServiceImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
 
     @Autowired
@@ -48,22 +33,16 @@ public class UserServiceImpl implements UserService {
                 throw new RuntimeException("User already exists");
             }
 
-            final KeyHolder keyHolder = new GeneratedKeyHolder();
+            // 1. Create a new UserEntity instance
+            UserEntity newUser = new UserEntity();
+            newUser.setName(name);
+            newUser.setSurname(surname);
+            newUser.setEmail(modifiedEmail);
+            newUser.setPassword(hashedPassword);
 
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS);
-                ps.setString(1, name);
-                ps.setString(2, surname);
-                ps.setString(3, modifiedEmail);
-                ps.setString(4, hashedPassword);
-                return ps;
-            }, keyHolder);
+            // 2. Save it using the repository. Spring Data JPA handles the rest!
+            return userRepository.save(newUser);
 
-            Long userId = keyHolder.getKey().longValue();
-
-            return userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException(
-                            "Could not find user after creation with id: " + userId));
 
         } catch (RuntimeException e) {
             throw new RuntimeException("Error when creating user: " + e.getMessage(), e);
