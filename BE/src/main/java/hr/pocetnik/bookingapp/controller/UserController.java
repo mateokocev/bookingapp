@@ -35,7 +35,6 @@ public class UserController {
         String email = userMap.get("email");
         String password = userMap.get("password");
 
-
         Objects.requireNonNull(name, "First name must not be null");
         Objects.requireNonNull(surname, "Last name must not be null");
         Objects.requireNonNull(email, "Email must not be null");
@@ -47,5 +46,22 @@ public class UserController {
         Map<String, String> tokenMap = Map.of("token", token);
 
         return new ResponseEntity<>(tokenMap, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, String> userMap) {
+
+        String email = userMap.get("email");
+        String password = userMap.get("password");
+
+        Objects.requireNonNull(email, "Email must not be null");
+        Objects.requireNonNull(password, "Password must not be null");
+
+        UserEntity user = userService.loginUser(email, password);
+
+        String token = jwtService.generateToken(user);
+        Map<String, String> tokenMap = Map.of("token", token);
+
+        return new ResponseEntity<>(tokenMap, HttpStatus.OK);
     }
 }

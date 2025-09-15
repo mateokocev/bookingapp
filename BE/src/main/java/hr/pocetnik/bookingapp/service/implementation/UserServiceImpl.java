@@ -1,5 +1,6 @@
 package hr.pocetnik.bookingapp.service.implementation;
 
+import hr.pocetnik.bookingapp.exception.InvalidCredentialException;
 import hr.pocetnik.bookingapp.model.UserEntity;
 import hr.pocetnik.bookingapp.repository.UserRepository;
 import hr.pocetnik.bookingapp.service.UserService;
@@ -66,9 +67,33 @@ public class UserServiceImpl implements UserService {
                             "Could not find user after creation with id: " + userId));
 
         } catch (RuntimeException e) {
-            throw new RuntimeException("Error when creating user: " + e.getMessage(), e);
+            throw new RuntimeException("Error when creating user: " + e.getMessage());
         }
     }
 
+    // PODSJETNIK DODAJ SVE IZNIMKE I REFORMATIRAJ KOD DA BUDE PO GLOBAL HANDLER STANDARDU
+    public UserEntity loginUser(String email, String password) {
+
+        String modifiedEmail = email.toLowerCase(Locale.ROOT);
+
+        try {
+
+            if (!EMAIL_PATTERN.matcher(modifiedEmail).matches()) {
+                throw new RuntimeException("Invalid email format");
+            }
+
+            UserEntity user = userRepository.findByEmail(modifiedEmail)
+                    .orElseThrow(() -> new InvalidCredentialException());
+
+            if (!BCrypt.checkpw(password, user.getPassword())) {
+                throw new InvalidCredentialException();
+            }
+
+            return user;
+        }
+        catch (RuntimeException e) {
+            throw new RuntimeException("Error when authenticating user: " + e.getMessage());
+        }
+    }
 }
 
