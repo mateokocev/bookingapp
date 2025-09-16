@@ -29,8 +29,6 @@ public class JwtServiceImpl implements JwtService {
     public String generateToken(UserEntity user) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-        long expMillis = nowMillis + 3_600_000;
-        Date exp = new Date(expMillis);
 
         return Jwts.builder()
                 .subject(user.getEmail())
