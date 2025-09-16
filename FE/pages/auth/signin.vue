@@ -20,7 +20,7 @@
           <UButton icon="i-simple-icons-twitter" aria-label="Twitter" size="lg" variant="outline" class="w-full justify-center" />
         </div>
 
-        <UForm :state="state" @submit="onSubmit" class="space-y-4">
+        <UForm :state="state" @submit="onSubmitLogin" class="space-y-4">
  
             <UFormField  name="email">
               <template #label><span class="sr-only">Email</span></template>
@@ -40,38 +40,63 @@
         
           <UButton 
             type="submit" 
-            label="Sign in" 
+            label="Sign in"
             size="lg" 
             block
             class="!mt-6 bg-emerald-500 hover:bg-emerald-600 text-gray-900 font-bold"
           />
         </UForm>
 
-        <p class="text-sm text-center text-gray-400">
+        <p class="text-sm text-center text-gray-400 -mb-[2px]">
           Don't have an account yet?
           <ULink to="/auth/signup" class="font-semibold text-emerald-500 hover:text-emerald-600">
             Sign Up
           </ULink>
         </p>
+
+        <p class="text-sm text-center text-gray-400">
+          Wanna go back?
+          <ULink to="/" class="font-semibold text-emerald-500 hover:text-emerald-600">
+            Home Page
+          </ULink>
+        </p>
+
       </div>
     </UCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
-import type { FormSubmitEvent } from '#ui/types'
+  import * as v from 'valibot'
+  import { reactive } from 'vue'
+  import type { FormSubmitEvent } from '#ui/types'
 
-definePageMeta({
-  layout: 'auth'
-})
+  const schema = v.object({
 
-const state = reactive({
-  email: '',
-  password: ''
-})
+    email: v.pipe(
+      v.string(),
+      v.email('Invalid email'),
+      v.nonEmpty('Please enter your email'),
+    ),
+    password: v.pipe(
+      v.string(),
+      v.minLength(8, 'Must be at least 8 characters long.'),
+      v.nonEmpty('Please enter your password'),
+    ),
+  })
 
-async function onSubmit (event: FormSubmitEvent<any>) {
-  console.log(event.data)
-}
+  type Schema = v.InferOutput<typeof schema>
+
+  // Dovrsiti login funkciju
+  const toast = useToast()
+  async function onSubmitLogin(event: FormSubmitEvent<Schema>) {
+
+
+  }
+
+  const state = reactive({
+    email: '',
+    password: ''
+  })
+
 </script>
