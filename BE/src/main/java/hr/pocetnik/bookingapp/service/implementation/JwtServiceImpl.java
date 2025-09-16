@@ -19,6 +19,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Value("${jwt.expirationMillis:3600000}")
+    private Long expMillis;
+
     private Key key;
 
     @PostConstruct
@@ -29,14 +32,13 @@ public class JwtServiceImpl implements JwtService {
     public String generateToken(UserEntity user) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-        long expMillis = nowMillis + 3_600_000;
         Date exp = new Date(expMillis);
 
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("Id", user.getId())
                 .issuedAt(now)
-                .expiration(now)
+                .expiration(exp)
                 .signWith(key)
                 .compact();
     }

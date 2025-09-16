@@ -1,6 +1,8 @@
 package hr.pocetnik.bookingapp.service.implementation;
 
 import hr.pocetnik.bookingapp.exception.InvalidCredentialException;
+import hr.pocetnik.bookingapp.exception.InvalidEmailFormatException;
+import hr.pocetnik.bookingapp.exception.UserAlreadyExistsException;
 import hr.pocetnik.bookingapp.model.UserEntity;
 import hr.pocetnik.bookingapp.repository.UserRepository;
 import hr.pocetnik.bookingapp.service.UserService;
@@ -25,54 +27,41 @@ public class UserServiceImpl implements UserService {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         String modifiedEmail = email.toLowerCase(Locale.ROOT);
 
-        try {
-            if (!EMAIL_PATTERN.matcher(modifiedEmail).matches()) {
-                throw new RuntimeException("Invalid email format");
-            }
 
-            if (userRepository.existsByEmail(modifiedEmail)) {
-                throw new RuntimeException("User already exists");
-            }
-
-            // 1. Create a new UserEntity instance
-            UserEntity newUser = new UserEntity();
-            newUser.setName(name);
-            newUser.setSurname(surname);
-            newUser.setEmail(modifiedEmail);
-            newUser.setPassword(hashedPassword);
-
-            // 2. Save it using the repository. Spring Data JPA handles the rest!
-            return userRepository.save(newUser);
-
-
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Error when creating user: " + e.getMessage());
+        if (!EMAIL_PATTERN.matcher(modifiedEmail).matches()) {
+            throw new InvalidEmailFormatException();
         }
+
+        if (userRepository.existsByEmail(modifiedEmail)) {
+            throw new UserAlreadyExistsException(email);
+        }
+
+        UserEntity newUser = new UserEntity();
+        newUser.setName(name);
+        newUser.setSurname(surname);
+        newUser.setEmail(modifiedEmail);
+        newUser.setPassword(hashedPassword);
+
+        return userRepository.save(newUser);
     }
 
-    // PODSJETNIK DODAJ SVE IZNIMKE I REFORMATIRAJ KOD DA BUDE PO GLOBAL HANDLER STANDARDU
+    @Override
     public UserEntity loginUser(String email, String password) {
 
         String modifiedEmail = email.toLowerCase(Locale.ROOT);
 
-        try {
-
-            if (!EMAIL_PATTERN.matcher(modifiedEmail).matches()) {
-                throw new RuntimeException("Invalid email format");
-            }
-
-            UserEntity user = userRepository.findByEmail(modifiedEmail)
-                    .orElseThrow(() -> new InvalidCredentialException());
-
-            if (!BCrypt.checkpw(password, user.getPassword())) {
-                throw new InvalidCredentialException();
-            }
-
-            return user;
+        if (!EMAIL_PATTERN.matcher(modifiedEmail).matches()) {
+            throw new InvalidEmailFormatException();
         }
-        catch (RuntimeException e) {
-            throw new RuntimeException("Error when authenticating user: " + e.getMessage());
+
+        UserEntity user = userRepository.findByEmail(modifiedEmail)
+                .orElseThrow(() -> new InvalidCredentialException());  // Može biti referenca na konstruktor, ali je nepotrebno. Ovako je čitljivije
+
+        if (!BCrypt.checkpw(password, user.getPassword())) {
+            throw new InvalidCredentialException();
         }
+
+        return user;
     }
 }
 
