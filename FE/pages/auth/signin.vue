@@ -70,6 +70,7 @@
   import * as v from 'valibot'
   import { reactive } from 'vue'
   import type { FormSubmitEvent } from '#ui/types'
+  import { useAuthStore } from '~/stores/auth'
 
   const schema = v.object({
 
@@ -87,11 +88,40 @@
 
   type Schema = v.InferOutput<typeof schema>
 
-  // Dovrsiti login funkciju
   const toast = useToast()
   async function onSubmitLogin(event: FormSubmitEvent<Schema>) {
 
+    const auth = useAuthStore()
 
+    try{
+
+      const { email, password } = event.data
+
+      await $fetch(
+        '/api/users/login',
+        {
+          method: 'POST',
+          body: { email, password },
+          credentials: 'include',
+        },
+      )
+
+      await auth.fetchUser()
+
+      toast.add({
+        title: 'Success',
+        description: 'Logged in successfully!',
+        color: 'success'
+      })
+
+    } catch(err: any) {
+
+      toast.add({
+        title: 'Login failed',
+        description: err?.data?.message || 'Invalid email or password',
+        color: 'error'
+      })
+    }
   }
 
   const state = reactive({

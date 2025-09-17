@@ -1,16 +1,19 @@
 package hr.pocetnik.bookingapp.controller;
 
+import hr.pocetnik.bookingapp.exception.TokenNotFoundException;
+import hr.pocetnik.bookingapp.exception.UserNotFoundException;
 import hr.pocetnik.bookingapp.model.UserEntity;
+import hr.pocetnik.bookingapp.repository.UserRepository;
 import hr.pocetnik.bookingapp.service.JwtService;
 import hr.pocetnik.bookingapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,16 +23,17 @@ public class UserController {
 
     private final UserService userService;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserController(UserService userService, JwtService jwtService) {
+    public UserController(UserService userService, JwtService jwtService, UserRepository userRepository) {
         this.userService = userService;
         this.jwtService = jwtService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@RequestBody Map<String, String> userMap) {
-
         String name = userMap.get("name");
         String surname = userMap.get("surname");
         String email = userMap.get("email");
@@ -41,16 +45,13 @@ public class UserController {
         Objects.requireNonNull(password, "Password must not be null");
 
         UserEntity user = userService.registerUser(name, surname, email, password);
-
         String token = jwtService.generateToken(user);
         Map<String, String> tokenMap = Map.of("token", token);
-
         return new ResponseEntity<>(tokenMap, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, String> userMap) {
-
         String email = userMap.get("email");
         String password = userMap.get("password");
 
@@ -58,10 +59,54 @@ public class UserController {
         Objects.requireNonNull(password, "Password must not be null");
 
         UserEntity user = userService.loginUser(email, password);
-
         String token = jwtService.generateToken(user);
-        Map<String, String> tokenMap = Map.of("token", token);
 
-        return new ResponseEntity<>(tokenMap, HttpStatus.OK);
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(false) //  U produkciji prebaciti na true
+                .path("/api")
+                .maxAge(Duration.ofHours(1))
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Login successful"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logoutUser() {
+        ResponseCookie cookie = ResponseCookie.from("token", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/api")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, String>> getCurrentUser(@CookieValue(name = "token", required = false) String token) {
+        if (token == null || token.isEmpty()) {
+            throw new TokenNotFoundException();
+        }
+
+        jwtService.verifyToken(token);
+        String email = jwtService.extractEmail(token);
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
+
+        Map<String, String> userData = Map.of(
+                "email", email,
+                "name", user.getName(),
+                "surname", user.getSurname()
+        );
+        return ResponseEntity.ok(userData);
     }
 }
+

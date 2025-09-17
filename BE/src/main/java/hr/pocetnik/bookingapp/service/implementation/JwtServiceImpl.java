@@ -2,14 +2,17 @@ package hr.pocetnik.bookingapp.service.implementation;
 
 import hr.pocetnik.bookingapp.model.UserEntity;
 import hr.pocetnik.bookingapp.service.JwtService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Date;
 
 
@@ -22,7 +25,7 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.expirationMillis:3600000}")
     private Long expMillis;
 
-    private Key key;
+    private SecretKey key;
 
     @PostConstruct
     public void init() {
@@ -32,7 +35,7 @@ public class JwtServiceImpl implements JwtService {
     public String generateToken(UserEntity user) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-        Date exp = new Date(expMillis);
+        Date exp = new Date(nowMillis + expMillis);
 
         return Jwts.builder()
                 .subject(user.getEmail())
@@ -42,4 +45,25 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(key)
                 .compact();
     }
+
+    private Jws<Claims> parseToken(String token) throws JwtException {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token);
+    }
+
+    public String extractEmail(String token) {
+        return parseToken(token).getPayload().getSubject();
+    }
+
+    public Claims extractAllClaims(String token) {
+        return parseToken(token).getPayload();
+    }
+
+    public Boolean verifyToken(String token) {
+        parseToken(token);
+        return true;
+    }
 }
+
