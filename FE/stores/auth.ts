@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+
+
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null as { email: string; name: string; surname: string } | null
@@ -17,9 +19,10 @@ export const useAuthStore = defineStore('auth', {
             }
         },
         async fetchUser() {
+            const config = useRuntimeConfig()
             try {
                 const data = await $fetch<{ email: string; name: string; surname: string }>(
-                    '/api/users/me',
+                      `${config.public.apiBase}/users/me`,
                     { credentials: 'include' }
                 )
                 this.user = data
@@ -31,8 +34,9 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async logout() {
+            const config = useRuntimeConfig()
             try {
-                await $fetch('/api/users/logout', { method: 'POST', credentials: 'include' })
+                await $fetch(`${config.public.apiBase}/users/logout`, { method: 'POST', credentials: 'include' })
             } finally {
                 this.user = null
                 localStorage.removeItem('auth_user')

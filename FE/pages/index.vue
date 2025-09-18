@@ -38,7 +38,7 @@
 
         </div>
 
-        <div class="flex items-center space-x-3">
+        <div v-if="!authStore.user" class="flex items-center space-x-3">
           <UButton
             label="Register"
             variant="outline"
@@ -52,6 +52,19 @@
             size="sm"
             class="text-gray-900 font-bold"
             to="auth/signin"
+          />
+        </div>
+        <div v-else class="flex items-center space-x-4">
+          <span class="text-sm text-gray-300">
+            Hi, {{ authStore.user.name }}
+          </span>
+          <UButton
+            icon="i-heroicons-arrow-left-on-rectangle"
+            label="Logout"
+            variant="ghost"
+            size="sm"
+            class="text-gray-300 hover:text-white hover:bg-gray-800"
+            @click="handleLogout"
           />
         </div>
       </nav>
@@ -113,6 +126,7 @@
             </div>
           </div>
         </form>
+        <ListingCard class="mt-2"/>
       </div>
     </main>
 
@@ -121,6 +135,10 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
+import { useAuthStore } from '~/stores/auth'
+
+const authStore = useAuthStore()
+const router = useRouter()
 
 // Reaktilno stanje za podatke iz search bara
 const searchQuery = reactive({
@@ -133,6 +151,12 @@ const searchQuery = reactive({
 function handleSearch() {
   console.log('Searching with:', searchQuery)
 
+}
+
+async function handleLogout() {
+  await authStore.logout()
+
+  await navigateTo('/')
 }
 </script>
 

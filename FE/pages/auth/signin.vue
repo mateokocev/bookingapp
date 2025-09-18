@@ -71,6 +71,7 @@
   import { reactive } from 'vue'
   import type { FormSubmitEvent } from '#ui/types'
   import { useAuthStore } from '~/stores/auth'
+  const config = useRuntimeConfig()
 
   const schema = v.object({
 
@@ -98,7 +99,7 @@
       const { email, password } = event.data
 
       await $fetch(
-        '/api/users/login',
+        `${config.public.apiBase}/users/login`,
         {
           method: 'POST',
           body: { email, password },
@@ -113,6 +114,8 @@
         description: 'Logged in successfully!',
         color: 'success'
       })
+
+      await navigateTo('/')
 
     } catch(err: any) {
 

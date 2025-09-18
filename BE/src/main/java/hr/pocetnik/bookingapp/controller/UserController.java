@@ -19,6 +19,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserController {
 
     private final UserService userService;
@@ -49,6 +50,7 @@ public class UserController {
         Map<String, String> tokenMap = Map.of("token", token);
         return new ResponseEntity<>(tokenMap, HttpStatus.CREATED);
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, String> userMap) {
