@@ -112,7 +112,6 @@ definePageMeta({
   layout: 'auth'
 })
 
-// Proširen 'state' objekt sa svim novim poljima
 const state = reactive({
   name: '',
   surname: '',
@@ -127,8 +126,7 @@ const state = reactive({
 })
 
 async function onSubmit (event: FormSubmitEvent<any>) {
-  // Ovdje ide logika za registraciju korisnika
-  // Na primjer, provjera jesu li lozinke iste
+
   if (event.data.password !== event.data.passwordConfirm) {
     console.error('passwords dont match!');
     return;

@@ -76,18 +76,12 @@ function stopSlideshow() {
   }
 }
 
-onMounted(() => {
-  // Bonus: automatsko mijenjanje slika kad miš nije na kartici
-  // startSlideshow();
-});
-
 onUnmounted(() => {
   stopSlideshow();
 });
 </script>
 
 <style scoped>
-/* Osigurava da link nema defaultnu plavu boju ili podcrtavanje */
 .no-underline {
   text-decoration: none;
 }
