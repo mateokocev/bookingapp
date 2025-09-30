@@ -1,10 +1,12 @@
 package hr.pocetnik.bookingapp.filter;
 
+import hr.pocetnik.bookingapp.exception.TokenNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,17 +15,16 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
 
 @Component
 public class AuthFilter extends OncePerRequestFilter {
 
     private final SecretKey key;
 
-    // Use constructor injection for dependencies - it's a best practice
     public AuthFilter(@Value("${jwt.secret}") String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
@@ -32,45 +33,39 @@ public class AuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String token = null;
 
-        // 1. Check if the header exists and is in the correct format
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response); // Let the request continue
-            return;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("token".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
         }
 
-        // 2. Extract the token
-        String token = authHeader.substring(7);
-
-        try {
-            // 3. Parse and validate the token
-            Claims claims = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            // 4. Extract claims and create an Authentication object
-            // It's common to use the user ID or username as the "principal"
-            String userId = claims.get("Id", String.class);
-
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userId,
-                    null,
-                    AuthorityUtils.createAuthorityList("ROLE_USER")
-            );
-
-            // 5. Set the user as authenticated in Spring Security's context
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        } catch (Exception e) {
-            // If the token is invalid, clear the context and let the request fail later
+        if (token == null || token.isEmpty()) {
             SecurityContextHolder.clearContext();
-            // You can log the error here if you want
+            throw new TokenNotFoundException();
         }
 
-        // 6. Continue the filter chain
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        String email = claims.getSubject();
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        email,
+                        null,
+                        AuthorityUtils.createAuthorityList("ROLE_USER")
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         filterChain.doFilter(request, response);
     }
 }
