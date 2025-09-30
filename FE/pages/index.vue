@@ -3,75 +3,10 @@
     class="min-h-screen bg-gray-900 text-white"
     style="background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px); background-size: 16px 16px;"
   >
-    <header class="border-b border-gray-700">
-      <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-        <div class="flex items-center space-x-6">
-          <NuxtLink to="/" class="text-2xl font-bold text-emerald-500 transition-all duration-300 hover:drop-shadow-[0_0_6px_#34d399]">
-            MyBooking
-          </NuxtLink>
+    <navbar/>
 
-          <!-- BUTTONI PORED NAVBARA -->
-          
-          <!-- <div class="hidden md:flex items-center space-x-2">
-            <UButton
-              icon="i-heroicons-building-office-2"
-              label="Stays"
-              variant="ghost"
-              size="sm"
-              class="text-gray-300 hover:text-white hover:bg-gray-800"
-            />
-            <UButton
-              icon="i-heroicons-paper-airplane"
-              label="Flights"
-              variant="ghost"
-              size="sm"
-              class="text-gray-300 hover:text-white hover:bg-gray-800"
-            />
-            <UButton
-              icon="i-mdi-car"
-              label="Car rental"
-              variant="ghost"
-              size="sm"
-              class="text-gray-300 hover:text-white hover:bg-gray-800"
-            />
-          </div> -->
-
-        </div>
-
-        <div v-if="!authStore.user" class="flex items-center space-x-3">
-          <UButton
-            label="Register"
-            variant="outline"
-            size="sm"
-            class="text-white border-gray-600 hover:bg-gray-800"
-            to="auth/signup"
-          />
-          <UButton
-            label="Sign in"
-            variant="solid"
-            size="sm"
-            class="text-gray-900 font-bold"
-            to="auth/signin"
-          />
-        </div>
-        <div v-else class="flex items-center space-x-4">
-          <span class="text-sm text-gray-300">
-            Hi, {{ authStore.user.name }}
-          </span>
-          <UButton
-            icon="i-heroicons-arrow-left-on-rectangle"
-            label="Logout"
-            variant="ghost"
-            size="sm"
-            class="text-gray-300 hover:text-white hover:bg-gray-800"
-            @click="handleLogout"
-          />
-        </div>
-      </nav>
-    </header>
-
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="max-w-4xl mx-auto text-center py-20 md:py-32">
+    <main class="container mx-auto px- sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto text-center py-10 md:py-16">
         <h1 class="text-4xl md:text-5xl font-bold text-white">
           Find your next stay
         </h1>
@@ -90,7 +25,7 @@
                   icon="i-heroicons-map-pin"
                   size="xl"
                   placeholder="Where are you going?"
-                  :ui="{ leadingIcon: 'text-gray-400' }"
+                  :ui="{ leadingIcon:  'text-gray-400'  }"
                 />
               </div>
 
@@ -110,7 +45,7 @@
                   icon="i-heroicons-user-group"
                   size="xl"
                   placeholder="2 adults · 0 children"
-                  :ui="{ leadingIcon: 'text-gray-400' }"
+                  :ui="{ leadingIcon:  'text-gray-400'  }"
                 />
               </div>
 
@@ -126,21 +61,28 @@
             </div>
           </div>
         </form>
-        <ListingCard class="mt-2"/>
       </div>
+      
+      <section class="pb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <ListingCard 
+            v-for="listing in listings"
+            :key="listing.id"
+            :listing="listing"
+          />
+        </div>
+      </section>
     </main>
-
-    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useAuthStore } from '~/stores/auth'
+import ListingCard from '~/components/listingCard.vue'; // Uvozimo komponentu
 
 const authStore = useAuthStore()
-const router = useRouter()
 
-// Reaktilno stanje za podatke iz search bara
 const searchQuery = reactive({
   destination: '',
   dates: '',
@@ -148,22 +90,68 @@ const searchQuery = reactive({
 })
 
 // Funkcija koja se poziva na submit forme
+// Ovdje ćete kasnije implementirati logiku pretrage
 function handleSearch() {
   console.log('Searching with:', searchQuery)
-
+  // npr. await navigateTo(`/listings?destination=${searchQuery.destination}...`)
 }
 
-async function handleLogout() {
-  await authStore.logout()
 
-  await navigateTo('/')
-}
+
+// "Dummy" podaci za prikaz kartica. Ovo bi inače došlo s vašeg servera.
+const listings = [
+  {
+    id: 123,
+    title: "Prostrani stan starog kova na Maksimiru",
+    location: "Maksimir, Zagreb",
+    distance: "2.1 km od centra",
+    details: "Cijeli apartman · 1 spavaća soba · 1 kupaonica",
+    rating: 7.8,
+    ratingLabel: "Dobro",
+    reviews: 5,
+    oldPrice: 129,
+    price: 119,
+    images: [
+      "https://picsum.photos/id/10/800/600",
+      "https://picsum.photos/id/11/800/600",
+      "https://picsum.photos/id/12/800/600",
+    ]
+  },
+  {
+    id: 456,
+    title: "Moderan studio apartman u centru grada",
+    location: "Donji grad, Zagreb",
+    distance: "300 m od centra",
+    details: "Studio apartman · 1 kupaonica · Čajna kuhinja",
+    rating: 9.2,
+    ratingLabel: "Izvanredno",
+    reviews: 88,
+    oldPrice: null,
+    price: 95,
+    images: [
+      "https://picsum.photos/id/20/800/600",
+      "https://picsum.photos/id/21/800/600",
+      "https://picsum.photos/id/22/800/600",
+    ]
+  },
+  {
+    id: 789,
+    title: "Obiteljska kuća s vrtom i roštiljem",
+    location: "Trešnjevka, Zagreb",
+    distance: "4.5 km od centra",
+    details: "Cijela kuća · 3 spavaće sobe · 2 kupaonice",
+    rating: 8.9,
+    ratingLabel: "Sjajno",
+    reviews: 42,
+    oldPrice: 250,
+    price: 220,
+    images: [
+      "https://picsum.photos/id/30/800/600",
+      "https://picsum.photos/id/31/800/600",
+      "https://picsum.photos/id/32/800/600",
+    ]
+  }
+];
+
+// Nema potrebe za globalnim stilovima ovdje, možete ih maknuti ako su u App.vue ili nuxt.config
 </script>
-
-<style>
-
-body :scope{
-  background-color: #111827; /* bg-gray-900 */
-  color: #ffffff; /* text-white */
-}
-</style>
