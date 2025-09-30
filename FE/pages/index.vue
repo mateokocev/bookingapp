@@ -79,7 +79,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useAuthStore } from '~/stores/auth'
-import ListingCard from '~/components/listingCard.vue'; // Uvozimo komponentu
+import ListingCard from '~/components/listingCard.vue'; 
 
 const authStore = useAuthStore()
 
@@ -89,16 +89,14 @@ const searchQuery = reactive({
   occupancy: ''
 })
 
-// Funkcija koja se poziva na submit forme
-// Ovdje ćete kasnije implementirati logiku pretrage
 function handleSearch() {
   console.log('Searching with:', searchQuery)
-  // npr. await navigateTo(`/listings?destination=${searchQuery.destination}...`)
+
 }
 
 
 
-// "Dummy" podaci za prikaz kartica. Ovo bi inače došlo s vašeg servera.
+
 const listings = [
   {
     id: 123,
@@ -153,5 +151,4 @@ const listings = [
   }
 ];
 
-// Nema potrebe za globalnim stilovima ovdje, možete ih maknuti ako su u App.vue ili nuxt.config
 </script>

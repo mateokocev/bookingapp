@@ -24,11 +24,13 @@
             v-slot="{ item }" 
             :items="listingData.images"
             :ui="{ item: 'basis-full' }"
-            class="rounded-lg overflow-hidden border border-gray-700"
+            :prev="{color: 'primary'}"
+            :next="{color: 'primary'}"
+            class="border-gray-700"
             arrows
             indicators
           >
-            <img :src="item" class="w-full h-96 object-cover" draggable="false">
+            <img :src="item" class="w-full h-96 object-cover rounded-lg" draggable="false">
           </UCarousel>
         </div>
 
@@ -98,13 +100,9 @@
 </template>
 
 <script setup lang="ts">
-// Dohvaćamo ID iz URL-a
+
 const route = useRoute();
 const id = route.params.id;
-
-// --- DUMMY PODACI ---
-// U stvarnoj aplikaciji, ovdje biste dohvatili podatke s API-ja koristeći ID:
-// const { data: listingData } = await useFetch(`/api/listings/${id}`);
 
 const listingData = {
   id: id,
@@ -113,10 +111,10 @@ const listingData = {
   rating: 5,
   pricePerNight: 250,
   images: [
-    'https://cf.bstatic.com/xdata/images/hotel/max1024x768/388373453.jpg?k=2871f34b868b9a1a5802c70d6160d5b5b542095f5195c6b0c2c3e414c2789434&o=&hp=1',
-    'https://cf.bstatic.com/xdata/images/hotel/max1024x768/388373461.jpg?k=b0c897f191b702755e128185799738f615f3358f2882f06b65377f078a6358c5&o=&hp=1',
-    'https://cf.bstatic.com/xdata/images/hotel/max1024x768/388373475.jpg?k=0942c4b8e21966d9b9b4f23b6b694b790d2e82512f451f2249ac89b88d227f42&o=&hp=1',
-    'https://cf.bstatic.com/xdata/images/hotel/max1024x768/388373466.jpg?k=6b63f2560e980a3161c565576a08f583f7a117b8be51525a1f64606c49a37c44&o=&hp=1',
+    'https://picsum.photos/id/103/1280/720',
+    'https://picsum.photos/id/104/1280/720',
+    'https://picsum.photos/id/106/1280/720',
+    'https://picsum.photos/id/108/1280/720',
   ],
   description: 'Hotel Ambasador u Splitu nudi krovni bazen, spa sadržaje, saunu, fitness centar, sunčanu terasu, restoran, bar i besplatan WiFi. Gosti mogu uživati u modernom restoranu koji poslužuje mediteransku kuhinju s vegetarijanskim, veganskim, bezglutenskim i bezmliječnim opcijama.',
   amenities: [
@@ -136,12 +134,12 @@ const listingData = {
   ]
 };
 
-// Postavljanje naslova stranice dinamički
+
 useHead({
   title: `${listingData.title} | Detalji`
 })
 </script>
 
 <style scoped>
-/* Dodatni stilovi po potrebi */
+
 </style>
