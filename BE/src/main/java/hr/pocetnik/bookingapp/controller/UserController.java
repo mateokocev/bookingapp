@@ -47,8 +47,18 @@ public class UserController {
 
         UserEntity user = userService.registerUser(name, surname, email, password);
         String token = jwtService.generateToken(user);
-        Map<String, String> tokenMap = Map.of("token", token);
-        return new ResponseEntity<>(tokenMap, HttpStatus.CREATED);
+
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(Duration.ofHours(1))
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Login successful"));
     }
 
 
@@ -65,8 +75,8 @@ public class UserController {
 
         ResponseCookie cookie = ResponseCookie.from("token", token)
                 .httpOnly(true)
-                .secure(false) //  U produkciji prebaciti na true
-                .path("/api")
+                .secure(false)
+                .path("/")
                 .maxAge(Duration.ofHours(1))
                 .sameSite("Strict")
                 .build();
@@ -81,7 +91,7 @@ public class UserController {
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
                 .secure(false)
-                .path("/api")
+                .path("/")
                 .maxAge(0)
                 .sameSite("Strict")
                 .build();
