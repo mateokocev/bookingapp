@@ -6,6 +6,7 @@ import hr.pocetnik.bookingapp.model.UserEntity;
 import hr.pocetnik.bookingapp.repository.UserRepository;
 import hr.pocetnik.bookingapp.service.JwtService;
 import hr.pocetnik.bookingapp.service.UserService;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -107,8 +108,9 @@ public class UserController {
             throw new TokenNotFoundException();
         }
 
-        jwtService.verifyToken(token);
-        String email = jwtService.extractEmail(token);
+        Claims claims = jwtService.extractAllClaims(token);
+        String email = claims.getSubject();
+        String role = claims.get("Role", String.class);
 
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
@@ -116,7 +118,8 @@ public class UserController {
         Map<String, String> userData = Map.of(
                 "email", email,
                 "name", user.getName(),
-                "surname", user.getSurname()
+                "surname", user.getSurname(),
+                "role", role
         );
         return ResponseEntity.ok(userData);
     }

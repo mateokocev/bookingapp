@@ -34,5 +34,10 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)  // Definira odnos između entiteta. Doc: https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/onetomany
     private Set<BillingDataEntity> billingData;
 
+    @Transient
+    public String getRoleType() {
+        DiscriminatorValue dv = this.getClass().getAnnotation(DiscriminatorValue.class);
+        return dv != null ? dv.value() : "USER";
+    }
 
 }

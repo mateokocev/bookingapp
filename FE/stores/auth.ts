@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
         async fetchUser() {
             const config = useRuntimeConfig()
             try {
-                const data = await $fetch<{ email: string; name: string; surname: string }>(
+                const data = await $fetch<{ email: string; name: string; surname: string; role: string }>(
                       `${config.public.apiBase}/users/me`,
                     { credentials: 'include' }
                 )

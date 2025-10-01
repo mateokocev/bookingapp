@@ -40,6 +40,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("Id", user.getId())
+                .claim("Role", user.getRoleType())
                 .issuedAt(now)
                 .expiration(exp)
                 .signWith(key)
@@ -53,17 +54,8 @@ public class JwtServiceImpl implements JwtService {
                 .parseSignedClaims(token);
     }
 
-    public String extractEmail(String token) {
-        return parseToken(token).getPayload().getSubject();
-    }
-
     public Claims extractAllClaims(String token) {
         return parseToken(token).getPayload();
-    }
-
-    public Boolean verifyToken(String token) {
-        parseToken(token);
-        return true;
     }
 }
 
